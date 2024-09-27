@@ -24,8 +24,3 @@ jobs:
       run: chmod +x gradlew
     - name: Build with Gradle
       run: ./gradlew build
-
-       - name: Build APK
-         run: |
-           echo "y" | sdkmanager "platforms;android-29" "build-tools;29.0.2"
-           ./gradlew assembleDebug
