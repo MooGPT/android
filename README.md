@@ -4,4 +4,4 @@
 Android liked it was Material Design 3 is the colour chatting (recommended SimSimi to OpenAI) with Material You.
 # Download
 - Google Play
-- GitHub
+- [GitHub](https://github.com/MooGPT/android/releases)
