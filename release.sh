@@ -1,66 +1,4 @@
 #!/bin/bash
-# Based on
-# * https://gist.github.com/jv-k/703e79306554c26a65a7cfdb9ca119c6
-# * https://github.com/jv-k/ver-bump
-
-# █▄▄ █░█ █▀▄▀█ █▀█ ▄▄ █░█ █▀▀ █▀█ █▀ █ █▀█ █▄░█
-# █▄█ █▄█ █░▀░█ █▀▀ ░░ ▀▄▀ ██▄ █▀▄ ▄█ █ █▄█ █░▀█
-#
-#
-# Description:
-#   - This script automates bumping the git software project's version using automation.
-
-#   - It does several things that are typically required for releasing a Git repository, like git tagging,
-#     automatic updating of CHANGELOG.md, and incrementing the version number in various JSON files.
-
-#     - Increments / suggests the current software project's version number
-#     - Adds a Git tag, named after the chosen version number
-#     - Updates CHANGELOG.md
-#     - Updates VERSION file
-#     - Commits files to a new branch
-#     - Pushes to remote (optionally)
-#     - Updates "version" : "x.x.x" tag in JSON files if [-v file1 -v file2...] argument is supplied.
-#
-# Usage:
-#   ./bump-version.sh [-v <version number>] [-m <release message>] [-j <file1>] [-j <file2>].. [-n] [-p] [-b] [-h]
-#
-# Options:
-#   -v <version number>	  Specify a manual version number
-#   -m <release message>	Custom release message.
-#   -f <filename.json>	  Update version number inside JSON files.
-# 			                  * For multiple files, add a separate -f option for each one,
-#	  		                  * For example: ./bump-version.sh -f src/plugin/package.json -f composer.json
-#   -p <repository alias> Push commits to remote repository, eg `-p origin`
-#   -n 	                  Don't perform a commit automatically.
-#	  		                  * You may want to do that yourself, for example.
-#   -b                    Don't create automatic `release-<version>` branch
-#   -h 	                  Show help message.
-
-#
-# Detailed notes:
-#   – The contents of the `VERSION` file which should be a semantic version number such as "1.2.3"
-#     or even "1.2.3-beta+001.ab"
-#
-#   – It pulls a list of changes from git history & prepends to a file called CHANGELOG.md
-#     under the title of the new version # number, allows the user to review and update the changelist
-#
-#   – Creates a Git tag with the version number
-#
-#   - Creates automatic `release-<version>` branch
-#
-#   – Commits the new version to the current repository
-#
-#   – Optionally pushes the commit to remote repository
-#
-#   – Make sure to set execute permissions for the script, eg `$ chmod 755 bump-version.sh`
-#
-# Credits:
-#   – https://github.com/jv-k/bump-version
-#
-#   - Inspired by the scripts from @pete-otaqui and @mareksuscak
-#     https://gist.github.com/pete-otaqui/4188238
-#     https://gist.github.com/mareksuscak/1f206fbc3bb9d97dec9c
-#
 
 NOW="$(date +'%B %d, %Y')"
 
@@ -265,7 +203,6 @@ process-version() {
     exit_abnormal
   fi
 
-  # If no version was provided, bump the previous version
   if [ -z "$V_USR_SUPPLIED" ]; then
     if [ "$V_BUILD_COUNTER" -eq "$V_BUILD_COUNTER" ] 2>/dev/null; then # discard stderr (2) output to black hole (suppress it)
       V_BUILD_COUNTER=$((V_BUILD_COUNTER + 1))                         # Increment
@@ -286,8 +223,7 @@ check-tag-exists() {
   fi
 }
 
-# $1 : version
-# $2 : release note
+{
 create-tag() {
   if [ -z "$2" ]; then
     # Default release note
@@ -299,8 +235,6 @@ create-tag() {
   echo -e "\n${I_OK} ${S_NOTICE}Added GIT tag"
 }
 
-# Update version.properties which is used by Gradle to generate the `versionName` and `versionCode`
-do-version-properties() {
   PROPS_FILE_NAME="version.properties"
   echo -e "\n${S_NOTICE}Parsing ${PROPS_FILE_NAME}:\n"
 
@@ -349,8 +283,7 @@ do-version-properties() {
   echo -e "\n${I_OK} ${S_NOTICE}Updated [${S_NORM}${PROPS_FILE_NAME}${S_NOTICE}] file"
 }
 
-# Update a version file that can be parsed by third-parties, e.g. F-Droid
-do-versionfile() {
+{
   [ -f VERSION ] && ACTION_MSG="Updated" || ACTION_MSG="Created"
 
   echo "${V_NAME} ${V_CODE}" >VERSION # Create file
@@ -360,8 +293,7 @@ do-versionfile() {
   git add VERSION
 }
 
-# Does the release branch already exist?
-check-branch-exist() {
+ {
   [ "$FLAG_NOBRANCH" = true ] && return
 
   BRANCH_MSG=$(git rev-parse --verify "${REL_PREFIX}${V_NAME}" 2>&1)
@@ -371,8 +303,7 @@ check-branch-exist() {
   fi
 }
 
-# Create release branch if desired
-do-branch() {
+ {
   [ "$FLAG_NOBRANCH" = true ] && return
 
   echo -e "\n${S_NOTICE}Creating new release branch..."
@@ -387,8 +318,7 @@ do-branch() {
   fi
 }
 
-# Stage & commit all files modified by this script
-do-commit() {
+ {
   [ "$FLAG_NOCOMMIT" = true ] && return
 
   echo -e "\n${S_NOTICE}Committing..."
@@ -401,8 +331,7 @@ do-commit() {
   fi
 }
 
-# Pushes files + tags to remote repo. Changes are staged by earlier functions
-do-push() {
+ {
   [ "$FLAG_NOCOMMIT" = true ] && return
 
   if [ "$FLAG_PUSH" = true ]; then
@@ -434,7 +363,6 @@ do-push() {
 
 check-commits-exist
 
-# Process and prepare
 process-arguments "$@"
 process-version
 
@@ -445,7 +373,6 @@ check-tag-exists
 
 echo -e "\n${S_LIGHT}––––––"
 
-# Update steps
 do-version-properties
 do-versionfile
 do-branch
