@@ -12,6 +12,13 @@ buildscript {
     }
 }
 
+defaultConfig {
+        applicationId("com.ismaker.moogpt")
+        minSdkVersion(22)
+        targetSdkVersion(22)
+        versionCode(1)
+        versionName("1.0.1")
+
 allprojects {
     repositories {
         google()
