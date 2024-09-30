@@ -1,3 +1,5 @@
+package com.ismaker.moogpt
+
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
